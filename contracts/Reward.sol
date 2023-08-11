@@ -49,29 +49,24 @@ contract Owner {
 /** 
  * @title Offline Mining Reward Distribution
  */
-contract OfflineMining is Owner {
+contract MiningReward is Owner {
     uint256 private foundationTax;
     uint256 private coinbaseTax;
-    uint256 private rewardPerHash;
     address payable foundation;
 
     event FoundationTax(uint256 indexed tax);
     event CoinbaseTax(uint256 indexed tax);
-    event Reward(uint256 indexed tax);
-
 
     /** 
      * @dev Create a new contract to distribute the reward to foundation wallet, coinbase and miner wallet.
-     * @param foundationWallet Foundation wallet address
+     * @param fundWallet Foundation wallet address
      * @param fundTax Percent of foundation tax
      * @param coinTax Percent of coinbase tax
-     * @param reward Reward in wei per hash
      */
-    constructor(address payable foundationWallet, uint256 fundTax, uint256 coinTax, uint256 reward) {
+    constructor(address payable fundWallet, uint256 fundTax, uint256 coinTax) {
         foundationTax = fundTax;
         coinbaseTax = coinTax;
-        rewardPerHash = reward;
-        foundation = foundationWallet;
+        foundation = fundWallet;
     }
 
     /** 
@@ -82,7 +77,7 @@ contract OfflineMining is Owner {
     }
 
     /** 
-     * @dev return current taxes.
+     * @dev return current taxes
      */
     function getTaxes() public view returns (uint256, uint256) {
         return (foundationTax, coinbaseTax);
@@ -107,16 +102,7 @@ contract OfflineMining is Owner {
     }
 
     /** 
-     * @dev set and emit reward per difficulty 
-     * @param reward Number of wei paid for each difficulty hash
-     */
-    function setReward(uint256 reward) public isOwner {
-        emit Reward(reward);
-        rewardPerHash = reward;
-    }
-
-    /** 
-     * @dev set and emit reward per difficulty 
+     * @dev Mine distribute reward to foundation, coinbase and tx miner.
      * @param receiver Miner receiver address
      */
     function mine(address receiver) public payable {
